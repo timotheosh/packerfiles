@@ -1,0 +1,33 @@
+{
+  "description": "openjdk8 docker image",
+  "builders": [
+    {
+      "type": "docker",
+      "image": "alpine:3.8",
+      "commit": true,
+      "pull": true,
+      "run_command": [
+        "-d", "-i", "-t", "--entrypoint=/bin/sh", "--", "{{.Image}}"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "apk update",
+        "apk add openjdk8"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "repository": "timotheosh/openjdk8",
+      "tag": "{{user `architecture`}}"
+    }
+  ],
+  "variables": {
+    "architecture": "arm"
+  }
+}
