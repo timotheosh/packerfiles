@@ -19,7 +19,6 @@
       "changes": [
         "ENV LAUNCH_JBOSS_IN_BACKGROUND true",
         "USER jboss",
-        "ONBUILD RUN {{user `jboss_home`}}/bin/add-user.sh {{user `jboss_user`}} {{user `jboss_pass`}} --silent",
         "EXPOSE 8080 9990",
         "CMD [\"/opt/jboss/wildfly/bin/standalone.sh\", \"-b\", \"0.0.0.0\", \"-bmanagement\", \"0.0.0.0\", \"--debug\"]"
       ]
@@ -35,14 +34,15 @@
         "mv wildfly-{{user `wildfly_version`}} {{user `jboss_home`}}",
         "rm wildfly-{{user `wildfly_version`}}.tar.gz",
         "chown -R jboss:0 {{user `jboss_home`}}",
-        "chmod -R g+rw {{user `jboss_home`}}"
+        "chmod -R g+rw {{user `jboss_home`}}",
+        "{{user `jboss_home`}}/bin/add-user.sh {{user `jboss_user`}} {{user `jboss_pass`}} --silent"
       ]
     }
   ],
   "post-processors": [
     {
       "type": "docker-tag",
-      "repository": "timotheosh/openjdk8",
+      "repository": "timotheosh/wildfly",
       "tag": "amd64"
     }
   ]
