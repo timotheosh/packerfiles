@@ -1,0 +1,49 @@
+{
+  "description": "openjdk8 docker image",
+  "variables": {
+    "wildfly_version": "16.0.0.Final",
+    "wildfly_sha256": "287c21b069ec6ecd80472afec01384093ed8eb7d",
+    "jboss_home": "/opt/jboss/wildfly",
+    "jboss_user": "user",
+    "jboss_pass": "password123"
+  },
+  "builders": [
+    {
+      "type": "docker",
+      "image": "timotheosh/openjdk8",
+      "commit": true,
+      "pull": true,
+      "run_command": [
+        "-d", "-i", "-t", "--entrypoint=/bin/sh", "--", "{{.Image}}"
+      ],
+      "changes": [
+        "ENV LAUNCH_JBOSS_IN_BACKGROUND true",
+        "USER jboss",
+        "ONBUILD RUN {{user `jboss_home`}}/bin/add-user.sh {{user `jboss_user`}} {{user `jboss_pass`}} --silent",
+        "EXPOSE 8080 9990",
+        "CMD [\"/opt/jboss/wildfly/bin/standalone.sh\", \"-b\", \"0.0.0.0\", \"-bmanagement\", \"0.0.0.0\", \"--debug\"]"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "curl -O https://download.jboss.org/wildfly/{{user `wildfly_version`}}/wildfly-{{user `wildfly_version`}}.tar.gz",
+        "sha1sum wildfly-{{user `wildfly_version`}}.tar.gz | grep {{user `wildfly_sha256`}}",
+        "tar -xf wildfly-{{user `wildfly_version`}}.tar.gz",
+        "mv wildfly-{{user `wildfly_version`}} {{user `jboss_home`}}",
+        "rm wildfly-{{user `wildfly_version`}}.tar.gz",
+        "chown -R jboss:0 {{user `jboss_home`}}",
+        "chmod -R g+rw {{user `jboss_home`}}"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "docker-tag",
+      "repository": "timotheosh/openjdk8",
+      "tag": "amd64"
+    }
+  ]
+}
