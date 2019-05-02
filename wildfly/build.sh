@@ -19,14 +19,10 @@ if [[ -z ${JBOSS_USER} ]];then
     read JBOSS_USER
     while [[ -z $JBOSS_PASS ]];do
         echo -n "Enter password: "
-        stty -echo
-        read pass1
-        stty echo
+        read -s pass1
         echo
 	echo -n "Re-enter password: "
-        stty -echo
-	read pass2
-        stty echo
+	read -s pass2
         echo
 	if [[ $pass1 = $pass2 ]];then
             JBOSS_PASS=${pass1}

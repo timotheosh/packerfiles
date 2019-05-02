@@ -1,6 +1,7 @@
 {
   "description": "openjdk8 docker image",
   "variables": {
+    "architecture": "arm",
     "wildfly_version": "16.0.0.Final",
     "wildfly_sha256": "287c21b069ec6ecd80472afec01384093ed8eb7d",
     "jboss_home": "/opt/jboss/wildfly",
@@ -10,12 +11,9 @@
   "builders": [
     {
       "type": "docker",
-      "image": "timotheosh/openjdk8",
+      "image": "debian:stable-slim",
       "commit": true,
       "pull": true,
-      "run_command": [
-        "-d", "-i", "-t", "--entrypoint=/bin/sh", "--", "{{.Image}}"
-      ],
       "changes": [
         "ENV LAUNCH_JBOSS_IN_BACKGROUND true",
         "USER jboss",
@@ -28,6 +26,11 @@
     {
       "type": "shell",
       "inline": [
+        "mkdir -p /usr/share/man/man1",
+        "touch /usr/share/man/man1/rmid.1.gz.dpkg-tmp",
+        "apt-get update",
+        "apt-get -y install curl openjdk-8-jdk-headless tar gzip",
+        "useradd -d /opt/jboss -r -m jboss",
         "curl -O https://download.jboss.org/wildfly/{{user `wildfly_version`}}/wildfly-{{user `wildfly_version`}}.tar.gz",
         "sha1sum wildfly-{{user `wildfly_version`}}.tar.gz | grep {{user `wildfly_sha256`}}",
         "tar -xf wildfly-{{user `wildfly_version`}}.tar.gz",
@@ -43,7 +46,7 @@
     {
       "type": "docker-tag",
       "repository": "timotheosh/wildfly",
-      "tag": "amd64"
+      "tag": "{{user `architecture`}}"
     }
   ]
 }
